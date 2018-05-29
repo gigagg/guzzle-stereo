@@ -27,7 +27,9 @@ class ResponseFormatter
     {
         $format = [
             'code' => $response->getStatusCode(),
-            'headers' => $response->getHeaders(),
+            'headers' => array_map(function($value) {
+                return array_map('base64_encode',$value);
+            }, $response->getHeaders()),
             'body' => base64_encode((string) $response->getBody()),
         ];
 
@@ -40,7 +42,10 @@ class ResponseFormatter
 
     public function rebuildTrack(array $trackContent)
     {
-        return new Response($trackContent['code'], $trackContent['headers'], base64_decode($trackContent['body']));
+        $headers = array_map(function($value) {
+            return array_map('base64_decode',$value);
+        }, $trackContent['headers']);
+        return new Response($trackContent['code'], $headers, base64_decode($trackContent['body']));
     }
 
     public function encodeResponsesCollection(array $responses)
@@ -49,7 +54,6 @@ class ResponseFormatter
         foreach ($responses as $response) {
             $formatted[] = $this->formatResponse($response);
         }
-
         return json_encode($formatted, JSON_PRETTY_PRINT);
     }
 
