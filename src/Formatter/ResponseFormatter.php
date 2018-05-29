@@ -28,7 +28,7 @@ class ResponseFormatter
         $format = [
             'code' => $response->getStatusCode(),
             'headers' => $response->getHeaders(),
-            'body' => (string) $response->getBody(),
+            'body' => base64_encode((string) $response->getBody()),
         ];
 
         if ($this->markerHeader) {
@@ -40,7 +40,7 @@ class ResponseFormatter
 
     public function rebuildTrack(array $trackContent)
     {
-        return new Response($trackContent['code'], $trackContent['headers'], $trackContent['body']);
+        return new Response($trackContent['code'], $trackContent['headers'], base64_decode($trackContent['body']));
     }
 
     public function encodeResponsesCollection(array $responses)
